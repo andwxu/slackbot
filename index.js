@@ -1,14 +1,11 @@
 const { WebClient, ErrorCode } = require('@slack/web-api');
-const dotenv = require('dotenv');
-
-// Initialize dotenv
-dotenv.config();
+require('dotenv').config();
 
 // Initialize web client with token that's hidden due to dotenv
 const web = new WebClient(process.env.BOT_TOKEN)
 
 // Channel ID
-const channelID = 'C0189AEUN8Y';
+const channelID = 'C0189AEUN8Y'; //replace this later with the channelID you want on the VSA slack
 
 (async() => {
     try {
