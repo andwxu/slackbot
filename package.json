@@ -1,0 +1,24 @@
+{
+  "name": "slackbot",
+  "version": "1.0.0",
+  "description": "Bot for VSA that replaces Donut Bot on Slack",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andwxu/slackbot.git"
+  },
+  "author": "Andrew Xu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andwxu/slackbot/issues"
+  },
+  "homepage": "https://github.com/andwxu/slackbot#readme",
+  "dependencies": {
+    "@slack/web-api": "^5.11.0",
+    "dotenv": "^8.2.0",
+    "slackbots": "^1.2.0"
+  }
+}
