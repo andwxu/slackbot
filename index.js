@@ -5,7 +5,7 @@ require('dotenv').config();
 const web = new WebClient(process.env.BOT_TOKEN)
 
 // Channel ID
-const channelID = 'C0189AEUN8Y'; //replace this later with the channelID you want on the VSA slack
+const channelID = 'C017LS59CN9'; //replace this later with the channelID you want on the VSA slack
 
 // Executes the pairing every 30 seconds, can change this to a week later
 setInterval(
@@ -23,6 +23,7 @@ setInterval(
                 let pair1 = members.splice(Math.floor(Math.random() * members.length), 1);
                 let pair2 = members.splice(Math.floor(Math.random() * members.length), 1);
                 pairedMembers[i] = { pair1, pair2 };
+                i++;
             }
             
             // Sending DM's to paired members
