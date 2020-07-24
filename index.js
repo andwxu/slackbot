@@ -1,5 +1,10 @@
 const { WebClient, ErrorCode } = require('@slack/web-api');
 require('dotenv').config();
+const express = require('express');
+const { response } = require('express');
+const app = express();
+const { createEventAdapter } = require('@slack/events-api');
+const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET);
 
 // Initialize web client with token that's hidden due to dotenv
 const web = new WebClient(process.env.BOT_TOKEN)
@@ -7,7 +12,39 @@ const web = new WebClient(process.env.BOT_TOKEN)
 // Channel ID
 const channelID = 'C017LS59CN9'; //replace this later with the channelID you want on the VSA slack
 
-// Executes the pairing every 30 seconds, can change this to a week later
+// Body Parser Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+app.post('/', (req, res) => {
+    /*
+    res.send(req.body.challenge);
+    res.status(200);
+    */
+    try {
+        if (req.body.event.type === 'message' && req.body.event.text === 'test') {
+            web.chat.postMessage({
+                channel: req.body.event.channel,
+                text: 'Test received!'
+            });
+        }
+        if (req.body.event.type === 'message' && req.body.event.text === 'points') {
+            web.chat.postMessage({
+                channel: req.body.event.channel,
+                text: 'Points received!'
+            });
+        }
+        res.status(200).send("Success!");
+    } catch(error) {
+        console.log(error);
+    }
+}).listen(3000);
+
+app.use('/slack/events', slackEvents.expressMiddleware());
+
+
+/*
+// Executes the pairing every week
 setInterval(
     (async() => {
         try {
@@ -46,4 +83,5 @@ setInterval(
             console.log(error.data);
         }
     })
-, 30000);
+, 604800000);
+*/
