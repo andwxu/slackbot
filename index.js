@@ -6,9 +6,15 @@ const app = express();
 const { createEventAdapter } = require('@slack/events-api');
 const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET);
 
+/* PLEASE MOVE THIS 
+ * TO ANOTHER FILE
+ * GOOGLE SHEETS API
+ * */
+
 const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
+
 
 
 // Initialize web client with token that's hidden due to dotenv
@@ -50,7 +56,7 @@ app.use('/slack/events', slackEvents.expressMiddleware());
 
 
 
-
+/** START OF GOOGLE SHEETS API */
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
@@ -167,6 +173,9 @@ function getPoints(auth, userID, channelID) {
         }
     });
 }
+
+/** END OF GOOGLE SHEETS API - PLEASE MOVE TO ANOTHER FILE - DON'T FORGET THE REQUIREMENTS AT TOP OF FILE */
+
 
 
 /*
