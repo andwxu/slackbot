@@ -28,10 +28,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.post('/', (req, res) => {
-    /*
+    // This is strictly for verification of redirect URL for slack (initialize once and done)
+    if (req.body.challenge) {
     res.send(req.body.challenge);
     res.status(200);
-    */
+    }
+
     try {
         if (req.body.event.type === 'message' && req.body.event.channel_type === 'im' && req.body.event.text === 'test') {
             web.chat.postMessage({
@@ -176,47 +178,53 @@ function getPoints(auth, userID, channelID) {
 
 /** END OF GOOGLE SHEETS API - PLEASE MOVE TO ANOTHER FILE - DON'T FORGET THE REQUIREMENTS AT TOP OF FILE */
 
-
-
-/*
-// Executes the pairing every week
-setInterval(
-    (async() => {
-        try {
-            const result = await web.conversations.members({
-                channel: channelID,
-            });
-            let members = result.members;
-            let pairedMembers = [];
-            
-            // Random pairing sequence
-            let i = 0; // current index of pairedMembers
-            while (members.length > 1) {
-                let pair1 = members.splice(Math.floor(Math.random() * members.length), 1);
-                let pair2 = members.splice(Math.floor(Math.random() * members.length), 1);
-                pairedMembers[i] = { pair1, pair2 };
-                i++;
-            }
-            
-            // Sending DM's to paired members
-            for (let j = 0; j < pairedMembers.length; j++) {
-                // Opening DM with the two paired members
-                let convResult = await web.conversations.open({
-                    users: `${pairedMembers[j].pair1},${pairedMembers[j].pair2}`
+// Checks if the date is Monday at 12pm
+function checkDate() {
+    let date = new Date();
+    console.log(date.getDay());
+    console.log(date.getHours());
+    if(date.getDay() === 1 && date.getHours() === 12) {
+        (async() => {
+            try {
+                const result = await web.conversations.members({
+                    channel: channelID,
                 });
-                let convID = convResult.channel.id;
+                let members = result.members;
+                let pairedMembers = [];
                 
-                // Sending opening message
-                let messageResult = await web.chat.postMessage({
-                    channel: convID,
-                    text: `You have been paired up! Get to know each other`
-                });
+                // Random pairing sequence
+                let i = 0; // current index of pairedMembers
+                while (members.length > 1) {
+                    let pair1 = members.splice(Math.floor(Math.random() * members.length), 1);
+                    let pair2 = members.splice(Math.floor(Math.random() * members.length), 1);
+                    pairedMembers[i] = { pair1, pair2 };
+                    i++;
+                }
                 
+                // Sending DM's to paired members
+                for (let j = 0; j < pairedMembers.length; j++) {
+                    // Opening DM with the two paired members
+                    let convResult = await web.conversations.open({
+                        users: `${pairedMembers[j].pair1},${pairedMembers[j].pair2}`
+                    });
+                    let convID = convResult.channel.id;
+                    
+                    // Sending opening message
+                    let messageResult = await web.chat.postMessage({
+                        channel: convID,
+                        text: `You have been paired up! Get to know each other`
+                    });
+                    
+                }
+        
+            } catch(error) {
+                console.log(error.data);
             }
+        })();
+    }
+}
 
-        } catch(error) {
-            console.log(error.data);
-        }
-    })
-, 604800000);
-*/
+// Runs checkDate every 45 minutes
+var dateLoop = setInterval(function() {
+    checkDate();
+}, 2700000);
