@@ -15,8 +15,6 @@ const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
 
-//Comment
-
 
 // Initialize web client with token that's hidden due to dotenv
 const web = new WebClient(process.env.BOT_TOKEN)
@@ -33,6 +31,7 @@ app.post('/', (req, res) => {
     if (req.body.challenge) {
     res.send(req.body.challenge);
     res.status(200);
+    console.log('trying');
     }
 
     try {
