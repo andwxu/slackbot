@@ -31,6 +31,7 @@ app.post('/', (req, res) => {
     if (req.body.challenge) {
     res.send(req.body.challenge);
     res.status(200);
+    console.log('trying');
     }
 
     try {
