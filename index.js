@@ -87,7 +87,7 @@ function authorize(credentials, callback, userID, channelID) {
 
   // Check if we have previously stored a token.
   fs.readFile(TOKEN_PATH, (err, token) => {
-    if (err) return getNewToken(oAuth2Client, callback);
+    
     oAuth2Client.setCredentials(JSON.parse(token));
     callback(oAuth2Client, userID, channelID);
   });
