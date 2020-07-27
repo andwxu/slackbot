@@ -5,7 +5,7 @@ const { response } = require('express');
 const app = express();
 const { createEventAdapter } = require('@slack/events-api');
 const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET);
-const google = require('googleapis');
+const {google} = require('googleapis');
 const sheetsApi = google.sheets('v4');
 const googleAuth = require('./auth');
 
@@ -17,7 +17,6 @@ const googleAuth = require('./auth');
 
 const fs = require('fs');
 const readline = require('readline');
-const {google} = require('googleapis');
 
 
 // Initialize web client with token that's hidden due to dotenv
@@ -49,7 +48,13 @@ app.post('/', (req, res) => {
             fs.readFile('credentials.json', (err, content) => {
                 if (err) return console.log('Error loading client secret file:', err);
                 // Authorize a client with credentials, then call the Google Sheets API.
-                authorize(JSON.parse(content), getPoints, req.body.event.user, req.body.event.channel);
+                googleAuth.authorize()
+                    .then((auth) => {
+                        getPoints(auth, req.body.event.user, req.body.event.channel)
+                    })
+                    .catch((err) => {
+                    console.log('auth error', err);
+                });
             });
         }
         res.status(200).send('Success!');
@@ -70,13 +75,6 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 // created automatically when the authorization flow completes for the first
 // time.
 
-// Load client secrets from a local file.
-fs.readFile('credentials.json', (err, content) => {
-  if (err) return console.log('Error loading client secret file:', err);
-  // Authorize a client with credentials, then call the Google Sheets API.
-  authorize(JSON.parse(content), listPoints);
-});
-
 const SPREADSHEET_ID = '1bHFps8CqGfDBdo_UFEQzqWTXp7wSfkC4iNHBUmavBK0';
 
 googleAuth.authorize()
@@ -84,7 +82,7 @@ googleAuth.authorize()
         sheetsApi.spreadsheets.values.get({
             auth: auth,
             spreadsheetId: SPREADSHEET_ID,
-            range: "'Tab Name'!A1:H300",
+            range: "'Points'!A2:C",
         }, function (err, response) {
             if (err) {
                 console.log('The API returned an error: ' + err);
@@ -96,7 +94,7 @@ googleAuth.authorize()
     })
     .catch((err) => {
         console.log('auth error', err);
-    });
+});
 
 
 /**
@@ -107,7 +105,7 @@ googleAuth.authorize()
 function listPoints(auth) {
     const sheets = google.sheets({version: 'v4', auth});
     sheets.spreadsheets.values.get({
-        spreadsheetId: '1bHFps8CqGfDBdo_UFEQzqWTXp7wSfkC4iNHBUmavBK0',
+        spreadsheetId: SPREADSHEET_ID,
         range: 'Points!A2:C',
     }, (err, res) => {
         if (err) return console.log('The API returned an error: ' + err);
@@ -127,7 +125,7 @@ function listPoints(auth) {
 function getPoints(auth, userID, channelID) {
     const sheets = google.sheets({version: 'v4', auth});
     sheets.spreadsheets.values.get({
-        spreadsheetId: '1bHFps8CqGfDBdo_UFEQzqWTXp7wSfkC4iNHBUmavBK0',
+        spreadsheetId: SPREADSHEET_ID,
         range: 'Points!A2:C',
     }, (err, res) => {
         if (err) return console.log('The API returned an error: ' + err);
