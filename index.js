@@ -24,6 +24,7 @@ const web = new WebClient(process.env.BOT_TOKEN)
 
 // Channel ID
 const channelID = 'C017LS59CN9'; //replace this later with the channelID you want on the VSA slack
+const PORT = process.env.PORT || 3000;
 
 // Body Parser Middleware
 app.use(express.json());
@@ -61,7 +62,7 @@ app.post('/', (req, res) => {
     } catch(error) {
         console.log(error);
     }
-}).listen(3000);
+}).listen(PORT);
 
 app.use('/slack/events', slackEvents.expressMiddleware());
 
