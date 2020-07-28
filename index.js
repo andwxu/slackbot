@@ -73,7 +73,30 @@ app
             console.log(err);
             web.chat.postMessage({
               channel: req.body.event.channel,
-              text: `I didn't find you :(`,
+              text: `I didn't find you :thinking_face:. Try typing 'name FIRST-NAME LAST-NAME' (without the quotes), and I'll try adding your slackID to the points sheet!`,
+            });
+          });
+      }
+
+      // NAME keyword to add userID to points sheet
+      if (
+        req.body.event.type === "message" &&
+        req.body.event.channel_type === "im" &&
+        req.body.event.text.includes('name')
+      ) {
+        googleSheets
+          .findUser(AUTH, req.body.event.user, req.body.event.text.substring(5))
+          .then((msg) => {
+            web.chat.postMessage({
+                channel: req.body.event.channel,
+                text: `Found ya :yum:! Try asking me again for your number of points!`,
+              });
+          })
+          .catch((err) => {
+            console.log(err);
+            web.chat.postMessage({
+            channel: req.body.event.channel,
+            text: `Looks like I couldn't find you. Try messaging an officer to get your name on the sheet manually. :+1:`,
             });
           });
       }

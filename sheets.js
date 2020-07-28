@@ -1,6 +1,5 @@
 const {google} = require('googleapis');
 const fs = require('fs');
-const { WebClient, ErrorCode } = require('@slack/web-api');
 const { resolve } = require('path');
 
 /** START OF GOOGLE SHEETS API */
@@ -12,8 +11,6 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 // time.
 
 const SPREADSHEET_ID = '1bHFps8CqGfDBdo_UFEQzqWTXp7wSfkC4iNHBUmavBK0';
-const web = new WebClient(process.env.BOT_TOKEN)
-
 
 /**
  * Prints the names and points of students in the points spreadsheet:
@@ -47,24 +44,23 @@ function listPoints(auth) {
  * @param {*} channelID Channel ID of the event to respond in
  */
 function getPoints(auth, userID) {
+    const sheets = google.sheets({version: 'v4', auth});
     return new Promise( (resolve, reject) => {
-        const sheets = google.sheets({version: 'v4', auth});
         sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
-            range: 'Points!A2:C',
+            range: 'Points!A2:C100',
         }, (err, res) => {
             if (err) return console.log('The API returned an error: ' + err);
-            
+            console.log(res.data);
             const rows = res.data.values;
             if (rows.length) {
-                // Look at columns A and C, which correspond to indices 0 and 3.
+                // Look at columns A and C, which correspond to indices 0 and 2.
                 rows.map((row) => {
                     if (row[1] == userID) {
                         resolve(row[2]);
-                    } else {
-                        reject("No userID found");
                     }
                 });
+                reject("No userID found");
             } else {
                 console.log('No data found.');
             }
@@ -72,8 +68,47 @@ function getPoints(auth, userID) {
     });
 }
 
+
+function findUser(auth, userID, name) {
+    const sheets = google.sheets({version: 'v4', auth});
+    const arrID = [ [userID], ];
+    return new Promise( (resolve, reject) => {
+        sheets.spreadsheets.values.get({
+            spreadsheetId: SPREADSHEET_ID,
+            range: 'Points!A2:B',
+        }, (err, res) => {
+            if (err) return console.log('The API returned an error: ' + err);
+            
+            const rows = res.data.values;
+            if (rows.length) {
+                // Look at columns A and B, which correspond to indices 0 and 1.
+                rows.map((row, index) => {
+                    if (row[0].toUpperCase() === name.toUpperCase()) {
+                        console.log(`A${index}`);
+                        sheets.spreadsheets.values.update({
+                            spreadsheetId: SPREADSHEET_ID,
+                            range: `B${index + 2}`,
+                            valueInputOption: 'RAW',
+                            resource: {values: arrID}
+                        }).then(() => {
+                            resolve('Success!');
+                        }).catch((err) => {
+                            console.log(err);
+                            reject('No name found');
+                        });
+                    }
+                });
+            } else {
+                console.log('No data found.');
+                reject('No name found');
+            }
+        });
+    });
+}
+
 module.exports = {
     getPoints,
+    findUser,
 }
 
 /*
