@@ -11,7 +11,7 @@ const googleSheets = require("./sheets");
 const web = new WebClient(process.env.BOT_TOKEN);
 
 // Channel ID
-const channelID = "C017LS59CN9"; //replace this later with the channelID you want on the VSA slack
+const channelID = "C01A2HN8Z2M"; //replace this later with the channelID you want on the VSA slack
 const PORT = process.env.PORT || 3000;
 
 // Body Parser Middleware
