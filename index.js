@@ -52,6 +52,15 @@ app
         });
       }
 
+      // TEST keyword for debugging
+      if (
+        req.body.event.type === "message" &&
+        req.body.event.channel_type === "im" &&
+        req.body.event.text === "match1234"
+      ) {
+        checkDate();
+      }
+
       // POINTS keyword to access points on point
       if (
         req.body.event.type === "message" &&
@@ -111,10 +120,6 @@ console.log(`Server running on ${PORT}`);
 
 // Checks if the date is Monday at 12pm
 function checkDate() {
-  let date = new Date();
-  console.log(date.getDay());
-  console.log(date.getHours());
-  if (date.getDay() === 1 && date.getHours() === 12) {
     (async () => {
       try {
         const result = await web.conversations.members({
@@ -153,12 +158,4 @@ function checkDate() {
         console.log(error.data);
       }
     })();
-  }
 }
-
-// Runs checkDate every 45 minutes
-var dateLoop = setInterval(function () {
-  checkDate();
-}, 2700000);
-
-dateLoop;
